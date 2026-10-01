@@ -1,0 +1,1 @@
+package com.example.ecommerce.service; public record OrderRequestItem(Long productId,int quantity) { public OrderRequestItem { if(productId==null||quantity<1) throw new IllegalArgumentException("Product and positive quantity are required"); } }

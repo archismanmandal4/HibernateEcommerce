@@ -1,0 +1,5 @@
+package com.example.ecommerce.service;
+import com.example.ecommerce.entity.*; import com.example.ecommerce.repository.ProductRepository; import jakarta.persistence.*; import java.util.*;
+public class OrderService { private final EntityManager em; private final ProductRepository products; public OrderService(EntityManager em){this.em=em;this.products=new ProductRepository(em);}
+ public CustomerOrder placeOrder(Long userId,List<OrderRequestItem> request){EntityTransaction tx=em.getTransaction(); try{tx.begin(); User user=em.find(User.class,userId); if(user==null) throw new IllegalArgumentException("User not found"); CustomerOrder order=new CustomerOrder(user); for(OrderRequestItem line:request){Product p=products.findActiveById(line.productId()).orElseThrow(()->new IllegalArgumentException("Product not found")); if(p.getStock()<line.quantity()) throw new IllegalStateException("Insufficient stock for "+p.getName()); p.setStock(p.getStock()-line.quantity()); order.addItem(p,line.quantity());} em.persist(order); tx.commit(); return order;}catch(RuntimeException e){if(tx.isActive())tx.rollback();throw e;}}
+}
